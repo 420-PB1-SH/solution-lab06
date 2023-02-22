@@ -38,8 +38,8 @@ int main()
 
 int jouerServeur(unsigned short port) {
 	sf::TcpListener listener;
-	sf::TcpSocket autreJoueur;
-	sf::Socket::Status etatAutreJoueur;
+	sf::TcpSocket client;
+	sf::Socket::Status etatClient;
 
 	sf::Packet paquetEntrant;
 	sf::Packet paquetSortant;
@@ -50,7 +50,7 @@ int jouerServeur(unsigned short port) {
 	}
 
 	cout << "En attente de l'autre joueur..." << endl;
-	listener.accept(autreJoueur);
+	listener.accept(client);
 
 	system("pause");
 
@@ -58,5 +58,18 @@ int jouerServeur(unsigned short port) {
 }
 
 int jouerClient(unsigned short port) {
+	string adresseServeur;
+	sf::TcpSocket serveur;
+	
+	cout << "Entrer l'adresse du serveur: ";
+	cin >> adresseServeur;
+
+	if (serveur.connect(adresseServeur, port)) {
+		cout << "Une erreur est survenue lors de la connexion au serveur." << endl;
+		return 1;
+	}
+
+	system("pause");
+
 	return 0;
 }
