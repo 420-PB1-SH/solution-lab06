@@ -7,16 +7,18 @@ using namespace std;
 class TicTacToe {
 private:
 	char _grille[3][3];
+	char _gagnant;
+	bool _estMatchNul;
+
+	void _verifierGagnant();
 public:
 	TicTacToe();
 	~TicTacToe();
 	void reinitialiser();
 	bool jouer(int x, int y, char lettre);
 
-	// Retourne le gagnant (x ou o), ou un espace s'il n'y a pas de gagnant.
-	char verifierGagnant() const;
-
-	bool verifierMatchNul() const;
+	char getGagnant()const;
+	bool estMatchNul()const;
 
 	void afficher(ostream& sortie) const;
 };
