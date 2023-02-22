@@ -25,13 +25,13 @@ void TicTacToe::_verifierGagnant() {
 	int lignes = 3, colonnes = 3, diagonales = 2;
 
 	// Vérifier les lignes
-	for (int i = 0; i < 2; i++) {
+	for (int i = 0; i < 3; i++) {
 		x = o = 0;
-		for (int j = 0; j < 2; j++) {
+		for (int j = 0; j < 3; j++) {
 			if (_grille[i][j] == 'x') {
 				x++;
 			}
-			if (_grille[j][j] == 'o') {
+			if (_grille[i][j] == 'o') {
 				o++;
 			}
 		}
@@ -46,13 +46,13 @@ void TicTacToe::_verifierGagnant() {
 		}
 	}
 	// Vérifier les colonnes
-	for (int j = 0; j < 2; j++) {
+	for (int j = 0; j < 3; j++) {
 		x = o = 0;
-		for (int i = 0; i < 2; i++) {
+		for (int i = 0; i < 3; i++) {
 			if (_grille[i][j] == 'x') {
 				x++;
 			}
-			if (_grille[j][j] == 'o') {
+			if (_grille[i][j] == 'o') {
 				o++;
 			}
 		}
@@ -112,8 +112,9 @@ bool TicTacToe::jouer(int x, int y, char lettre) {
 	assert(x >= 0 && x <= 3 && y >= 0 && y <= 3);
 	assert(lettre == 'x' || lettre == 'o');
 
-	if (_grille[x][y] == ' ') {
+	if (_grille[x][y] == ' ' && _gagnant == ' ' && !_estMatchNul) {
 		_grille[x][y] = lettre;
+		_verifierGagnant();
 		return true;
 	}
 	return false;
