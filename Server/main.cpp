@@ -11,8 +11,6 @@ int jouerClient(unsigned short port);
 int main()
 {
 	const unsigned short PORT = 54000;
-
-	TicTacToe ticTacToe;
 	int choixOption;
 
 	setlocale(LC_ALL, "");
@@ -38,11 +36,13 @@ int main()
 
 int jouerServeur(unsigned short port) {
 	sf::TcpListener listener;
-	sf::TcpSocket client;
-	sf::Socket::Status etatClient;
+	sf::TcpSocket socket;
+	sf::Socket::Status etatSocket;
 
 	sf::Packet paquetEntrant;
 	sf::Packet paquetSortant;
+
+	TicTacToe ticTacToe;
 
 	if (listener.listen(port) != sf::Socket::Done) {
 		cout << "Une erreur est survenue lors de la création du listener." << endl;
@@ -50,7 +50,10 @@ int jouerServeur(unsigned short port) {
 	}
 
 	cout << "En attente de l'autre joueur..." << endl;
-	listener.accept(client);
+	listener.accept(socket);
+	cout << "L'autre joueur vient de se connecter." << endl << endl;
+
+	cout << ticTacToe;
 
 	system("pause");
 
@@ -59,15 +62,25 @@ int jouerServeur(unsigned short port) {
 
 int jouerClient(unsigned short port) {
 	string adresseServeur;
-	sf::TcpSocket serveur;
+	sf::TcpSocket socket;
+
+	sf::Packet paquetEntrant;
+	sf::Packet paquetSortant;
+
+	TicTacToe ticTacToe;
 	
 	cout << "Entrer l'adresse du serveur: ";
 	cin >> adresseServeur;
 
-	if (serveur.connect(adresseServeur, port)) {
+	if (socket.connect(adresseServeur, port)) {
 		cout << "Une erreur est survenue lors de la connexion au serveur." << endl;
 		return 1;
 	}
+
+	cout << ticTacToe;
+
+	cout << endl << "En attente du tour de l'autre joueur..." << endl;
+	socket.receive(paquetEntrant);
 
 	system("pause");
 

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <iostream>
+#include <SFML/Network.hpp>
 
 using namespace std;
 
@@ -21,6 +22,9 @@ public:
 	bool estMatchNul()const;
 
 	void afficher(ostream& sortie) const;
+
+	sf::Packet& ecrirePaquet(sf::Packet& packet);
+	sf::Packet& lirePaquet(sf::Packet& packet);
 };
 
 ostream& operator<<(ostream& sortie, TicTacToe& const ticTacToe);
