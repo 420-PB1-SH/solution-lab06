@@ -58,7 +58,67 @@ char TicTacToe::verifierGagnant() const {
 }
 
 bool TicTacToe::verifierMatchNul() const {
-
+	int x, o;
+	int lignes = 3, colonnes = 3, diagonales = 2;
+	
+	// Vérifier les lignes
+	for (int i = 0; i < 2; i++) {
+		x = o = 0;
+		for (int j = 0; j < 2; j++) {
+			if (_grille[i][j] == 'x') {
+				x++;
+			}
+			if (_grille[j][j] == 'o') {
+				o++;
+			}
+		}
+		if (x > 0 && o > 0) {
+			lignes--;
+		}
+	}
+	// Vérifier les colonnes
+	for (int j = 0; j < 2; j++) {
+		x = o = 0;
+		for (int i = 0; i < 2; i++) {
+			if (_grille[i][j] == 'x') {
+				x++;
+			}
+			if (_grille[j][j] == 'o') {
+				o++;
+			}
+		}
+		if (x > 0 && o > 0) {
+			colonnes--;
+		}
+	}
+	// Vérifier la première diagonale
+	x = o = 0;
+	for (int i = 0; i < 3; i++) {
+		if (_grille[i][i] == 'x') {
+			x++;
+		}
+		if (_grille[i][i] == 'o') {
+			o++;
+		}
+	}
+	if (x > 0 && o > 0) {
+		diagonales--;
+	}
+	// Vérifier la deuxième diagonale
+	x = o = 0;
+	for (int i = 0; i < 3; i++) {
+		if (_grille[i][2 - i] == 'x') {
+			x++;
+		}
+		if (_grille[i][2 - i] == 'o') {
+			o++;
+		}
+	}
+	if (x > 0 && o > 0) {
+		diagonales--;
+	}
+	// Détecter match nul
+	return lignes == 0 && colonnes == 0 && diagonales == 0;
 }
 
 void TicTacToe::afficher(ostream& sortie) const {
