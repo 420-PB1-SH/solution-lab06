@@ -140,24 +140,6 @@ bool TicTacToe::estMatchNul() const {
 	return _estMatchNul;
 }
 
-sf::Packet& TicTacToe::ecrirePaquet(sf::Packet& paquet) {
-	for (int i = 0; i < 3; i++) {
-		for (int j = 0; j < 3; j++) {
-			paquet << _grille[i][j];
-		}
-	}
-	return paquet;
-}
-
-sf::Packet& TicTacToe::lirePaquet(sf::Packet& paquet) {
-	for (int i = 0; i < 3; i++) {
-		for (int j = 0; j < 3; j++) {
-			paquet >> _grille[i][j];
-		}
-	}
-	return paquet;
-}
-
 ostream& operator<<(ostream& sortie, TicTacToe& const ticTacToe) {
 	ticTacToe.afficher(sortie);
 	return sortie;

@@ -22,9 +22,6 @@ public:
 	bool estMatchNul()const;
 
 	void afficher(ostream& sortie) const;
-
-	sf::Packet& ecrirePaquet(sf::Packet& packet);
-	sf::Packet& lirePaquet(sf::Packet& packet);
 };
 
 ostream& operator<<(ostream& sortie, TicTacToe& const ticTacToe);
