@@ -34,6 +34,10 @@ int main()
 		else {
 			jouer(false, PORT);
 		}
+
+		cout << endl;
+		system("pause");
+		system("cls");
 	}
 }
 
@@ -47,7 +51,7 @@ void jouer(bool estServeur, unsigned short port) {
 	char tour = 'x';
 	TicTacToe ticTacToe;
 
-	int x, y;
+	int ligne, colonne;
 
 	if (estServeur) {
 		lettreJoueur = 'x';
@@ -78,42 +82,48 @@ void jouer(bool estServeur, unsigned short port) {
 
 		if (lettreJoueur == tour) {
 			cout << "C'est votre tour." << endl;
-			saisirPosition(x, y, lettreJoueur);
-			paquetSortant << x << y;
+			saisirPosition(ligne, colonne, lettreJoueur);
+			paquetSortant << ligne << colonne;
 			socket.send(paquetSortant);
 		}
 		else {
 			cout << "C'est le tour de l'autre joueur." << endl;
 			socket.receive(paquetEntrant);
-			paquetEntrant >> x >> y;
+			paquetEntrant >> ligne >> colonne;
 			cout << "L'autre joueur a joué." << endl;
 		}
 
-		ticTacToe.jouer(x, y, tour);
+		ticTacToe.jouer(ligne, colonne, tour);
 
+		if (tour == 'x') {
+			tour = 'o';
+		}
+		else {
+			tour = 'x';
+		}
 		paquetSortant.clear();
 	}
 
 	if (ticTacToe.getGagnant() != ' ') {
-		cout << ticTacToe.getGagnant() << " a gagné!" << endl;
+		cout << endl << "Le joueur " << '"' << ticTacToe.getGagnant() << "\" a gagné!" << endl;
 	}
 	else {
-		cout << "Match nul!" << endl;
+		cout << endl << "Match nul!" << endl;
 	}
 
 	socket.disconnect();
 }
 
 void saisirPosition(int& x, int& y, char lettreJoueur) {
-	char saisieX;
-	int saisieY;
+	char saisieLigne;
+	int saisieColonne;
 
 	do {
 		cout << "Où voulez-vous placer votre " << lettreJoueur << "?" << endl
 			<< "ligne colonne : ";
-		cin >> saisieX >> saisieY;
-	} while (saisieX < 'a' || saisieX > 'c' || saisieY < 1 || saisieY > 3);
+		cin >> saisieLigne >> saisieColonne;
+	} while (saisieLigne < 'a' || saisieLigne > 'c' || saisieColonne < 1 || saisieColonne > 3);
 
-	x = saisieX - 'a';
-	x = saisieY - 1;
+	x = saisieLigne - 'a';
+	y = saisieColonne - 1;
 }

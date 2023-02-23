@@ -108,12 +108,12 @@ void TicTacToe::_verifierGagnant() {
 	_estMatchNul = (lignes == 0 && colonnes == 0 && diagonales == 0);
 }
 
-bool TicTacToe::jouer(int x, int y, char lettre) {
-	assert(x >= 0 && x <= 3 && y >= 0 && y <= 3);
+bool TicTacToe::jouer(int ligne, int colonne, char lettre) {
+	assert(ligne >= 0 && ligne <= 3 && colonne >= 0 && colonne <= 3);
 	assert(lettre == 'x' || lettre == 'o');
 
-	if (_grille[x][y] == ' ' && _gagnant == ' ' && !_estMatchNul) {
-		_grille[x][y] = lettre;
+	if (_grille[ligne][colonne] == ' ' && _gagnant == ' ' && !_estMatchNul) {
+		_grille[ligne][colonne] = lettre;
 		_verifierGagnant();
 		return true;
 	}
@@ -121,10 +121,10 @@ bool TicTacToe::jouer(int x, int y, char lettre) {
 }
 
 void TicTacToe::afficher(ostream& sortie) const {
-	sortie << "   a b c";
+	sortie << "   1 2 3";
 	sortie << endl << "  -------" << endl;
 	for (int i = 0; i < 3; i++) {
-		sortie << (i + 1) << ' ';
+		sortie << char('a' + i) << ' ';
 		for (int j = 0; j < 3; j++) {
 			sortie << '|' << _grille[i][j];
 		}

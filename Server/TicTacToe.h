@@ -16,7 +16,7 @@ public:
 	TicTacToe();
 	~TicTacToe();
 	void reinitialiser();
-	bool jouer(int x, int y, char lettre);
+	bool jouer(int ligne, int colonne, char lettre);
 
 	char getGagnant()const;
 	bool estMatchNul()const;
