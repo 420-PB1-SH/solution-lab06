@@ -48,9 +48,10 @@ void jouer(bool estServeur, unsigned short port) {
 	sf::Socket::Status etatSocket;
 	string adresseServeur;
 
+	TicTacToe ticTacToe;
 	char lettreJoueur;
 	char tour = 'x';
-	TicTacToe ticTacToe;
+	bool coupValide;
 
 	int ligne, colonne;
 
@@ -79,11 +80,19 @@ void jouer(bool estServeur, unsigned short port) {
 	}
 
 	while (ticTacToe.getGagnant() == ' ' && !ticTacToe.estMatchNul()) {
-		cout << ticTacToe << endl;
+		cout << endl << ticTacToe << endl;
 
 		if (lettreJoueur == tour) {
 			cout << "C'est votre tour." << endl;
-			saisirPosition(ligne, colonne, lettreJoueur);
+			do {
+				saisirPosition(ligne, colonne, lettreJoueur);
+
+				coupValide = ticTacToe.jouer(ligne, colonne, tour);
+				if (!coupValide) {
+					cout << "Vous ne pouvez pas placer votre " << tour << " là." << endl;
+				}
+			} while (!coupValide);
+
 			paquetSortant << ligne << colonne;
 			etatSocket = socket.send(paquetSortant);
 
@@ -102,10 +111,9 @@ void jouer(bool estServeur, unsigned short port) {
 			}
 
 			paquetEntrant >> ligne >> colonne;
+			ticTacToe.jouer(ligne, colonne, tour);
 			cout << "L'autre joueur a joué." << endl;
 		}
-
-		ticTacToe.jouer(ligne, colonne, tour);
 
 		if (tour == 'x') {
 			tour = 'o';
@@ -116,6 +124,7 @@ void jouer(bool estServeur, unsigned short port) {
 		paquetSortant.clear();
 	}
 
+	cout << endl << ticTacToe << endl;
 	if (ticTacToe.getGagnant() != ' ') {
 		cout << endl << "Le joueur " << '"' << ticTacToe.getGagnant() << "\" a gagné!" << endl;
 	}
