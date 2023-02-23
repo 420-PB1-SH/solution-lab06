@@ -45,6 +45,7 @@ void jouer(bool estServeur, unsigned short port) {
 	sf::TcpListener listener;
 	sf::TcpSocket socket;
 	sf::Packet paquetEntrant, paquetSortant;
+	sf::Socket::Status etatSocket;
 	string adresseServeur;
 
 	char lettreJoueur;
@@ -84,11 +85,22 @@ void jouer(bool estServeur, unsigned short port) {
 			cout << "C'est votre tour." << endl;
 			saisirPosition(ligne, colonne, lettreJoueur);
 			paquetSortant << ligne << colonne;
-			socket.send(paquetSortant);
+			etatSocket = socket.send(paquetSortant);
+
+			if (etatSocket == sf::Socket::Disconnected) {
+				cout << "L'autre joueur s'est déconnecté.";
+				return;
+			}
 		}
 		else {
 			cout << "C'est le tour de l'autre joueur." << endl;
-			socket.receive(paquetEntrant);
+			etatSocket = socket.receive(paquetEntrant);
+
+			if (etatSocket == sf::Socket::Disconnected) {
+				cout << "L'autre joueur s'est déconnecté.";
+				return;
+			}
+
 			paquetEntrant >> ligne >> colonne;
 			cout << "L'autre joueur a joué." << endl;
 		}
