@@ -5,10 +5,9 @@
 
 using namespace std;
 
-//int jouerServeur(unsigned short port);
-//int jouerClient(unsigned short port);
+void jouer(bool estServeur, unsigned short port);
 
-int jouer(bool estServeur, unsigned short port);
+void saisirPosition(int& ligne, int& colonne, char lettreJoueur);
 
 int main()
 {
@@ -17,26 +16,28 @@ int main()
 
 	setlocale(LC_ALL, "");
 
-	cout << "TIC TAC TOE" << endl
-		<< "===========" << endl << endl
-		<< "Choisir une option: " << endl
-		<< "1. Créer une partie" << endl
-		<< "2. Joindre une partie" << endl << endl;
-	
-	do {
-		cout << "Votre choix: ";
-		cin >> choixOption;
-	} while (choixOption != 1 && choixOption != 2);
+	while (true) {
+		cout << "TIC TAC TOE" << endl
+			<< "===========" << endl << endl
+			<< "Choisir une option: " << endl
+			<< "1. Créer une partie" << endl
+			<< "2. Joindre une partie" << endl << endl;
 
-	if (choixOption == 1) {
-		return jouer(true, PORT);
-	}
-	else {
-		return jouer(false, PORT);
+		do {
+			cout << "Votre choix: ";
+			cin >> choixOption;
+		} while (choixOption != 1 && choixOption != 2);
+
+		if (choixOption == 1) {
+			jouer(true, PORT);
+		}
+		else {
+			jouer(false, PORT);
+		}
 	}
 }
 
-int jouer(bool estServeur, unsigned short port) {
+void jouer(bool estServeur, unsigned short port) {
 	sf::TcpListener listener;
 	sf::TcpSocket socket;
 	sf::Packet paquetEntrant, paquetSortant;
@@ -46,15 +47,14 @@ int jouer(bool estServeur, unsigned short port) {
 	char tour = 'x';
 	TicTacToe ticTacToe;
 
-	char saisieLigne;
-	int saisieColonne;
+	int x, y;
 
 	if (estServeur) {
 		lettreJoueur = 'x';
 
 		if (listener.listen(port) != sf::Socket::Done) {
 			cout << "Une erreur est survenue lors de la création du listener." << endl;
-			return 1;
+			return;
 		}
 
 		cout << "En attente de l'autre joueur..." << endl;
@@ -69,103 +69,51 @@ int jouer(bool estServeur, unsigned short port) {
 		
 		if (socket.connect(adresseServeur, port)) {
 			cout << "Une erreur est survenue lors de la connexion au serveur." << endl;
-			return 1;
+			return;
 		}
 	}
 
 	while (ticTacToe.getGagnant() == ' ' && !ticTacToe.estMatchNul()) {
 		cout << ticTacToe << endl;
+
 		if (lettreJoueur == tour) {
-			cout << "C'est votre tour." << endl
-				<< "Où voulez-vous placer votre " << lettreJoueur << "?" << endl
-				<< "ligne colonne : ";
-			cin >> saisieLigne >> saisieColonne;
+			cout << "C'est votre tour." << endl;
+			saisirPosition(x, y, lettreJoueur);
+			paquetSortant << x << y;
+			socket.send(paquetSortant);
 		}
 		else {
 			cout << "C'est le tour de l'autre joueur." << endl;
 			socket.receive(paquetEntrant);
+			paquetEntrant >> x >> y;
+			cout << "L'autre joueur a joué." << endl;
 		}
+
+		ticTacToe.jouer(x, y, tour);
+
+		paquetSortant.clear();
 	}
 
-	system("pause");
+	if (ticTacToe.getGagnant() != ' ') {
+		cout << ticTacToe.getGagnant() << " a gagné!" << endl;
+	}
+	else {
+		cout << "Match nul!" << endl;
+	}
+
+	socket.disconnect();
 }
 
-//int jouerServeur(unsigned short port) {
-//	sf::TcpListener listener;
-//	sf::TcpSocket socket;
-//	sf::Socket::Status etatSocket;
-//
-//	sf::Packet paquetEntrant;
-//	sf::Packet paquetSortant;
-//
-//	TicTacToe ticTacToe;
-//
-//	char saisieLigne;
-//	int saisieColonne, ligne, colonne;
-//
-//	if (listener.listen(port) != sf::Socket::Done) {
-//		cout << "Une erreur est survenue lors de la création du listener." << endl;
-//		return 1;
-//	}
-//
-//	cout << "En attente de l'autre joueur..." << endl;
-//	listener.accept(socket);
-//	cout << "L'autre joueur vient de se connecter." << endl << endl;
-//
-//	cout << ticTacToe;
-//
-//	cout << endl << "C'est votre tour. Vous jouez les X." << endl;
-//	do {
-//		cout << "Où voulez-vous placer votre x? (ligne colonne) ";
-//		cin >> saisieLigne >> saisieColonne;
-//	} while (saisieLigne < 'a' || saisieLigne > 'c' || saisieColonne < 1 || saisieColonne > 3);
-//	ligne = saisieLigne - 'a';
-//	colonne = saisieColonne - 1;
-//	ticTacToe.jouer(ligne, colonne, 'x');
-//
-//	paquetSortant << ligne << colonne;
-//	socket.send(paquetSortant);
-//
-//	cout << endl << ticTacToe << endl << endl
-//		<< "En attente du tour de l'autre joueur..." << endl;
-//
-//	system("pause");
-//
-//	return 0;
-//}
-//
-//int jouerClient(unsigned short port) {
-//	string adresseServeur;
-//	sf::TcpSocket socket;
-//
-//	sf::Packet paquetEntrant;
-//	sf::Packet paquetSortant;
-//
-//	TicTacToe ticTacToe;
-//
-//	char saisieLigne;
-//	int saisieColonne, ligne, colonne;
-//	
-//	cout << "Entrer l'adresse du serveur: ";
-//	cin >> adresseServeur;
-//
-//	if (socket.connect(adresseServeur, port)) {
-//		cout << "Une erreur est survenue lors de la connexion au serveur." << endl;
-//		return 1;
-//	}
-//
-//	cout << ticTacToe;
-//
-//	cout << endl << "En attente du tour de l'autre joueur..." << endl;
-//	socket.receive(paquetEntrant);
-//
-//	paquetEntrant >> ligne >> colonne;
-//
-//	ticTacToe.jouer(ligne, colonne, 'x');
-//
-//	cout << endl << ticTacToe << endl << endl;
-//
-//	system("pause");
-//
-//	return 0;
-//}
+void saisirPosition(int& x, int& y, char lettreJoueur) {
+	char saisieX;
+	int saisieY;
+
+	do {
+		cout << "Où voulez-vous placer votre " << lettreJoueur << "?" << endl
+			<< "ligne colonne : ";
+		cin >> saisieX >> saisieY;
+	} while (saisieX < 'a' || saisieX > 'c' || saisieY < 1 || saisieY > 3);
+
+	x = saisieX - 'a';
+	x = saisieY - 1;
+}
