@@ -6,11 +6,9 @@
 
 using namespace std;
 
-void actionInvalide(sf::TcpSocket& socket);
-void changerNom(Utilisateur* utilisateur, sf::Packet paquetEntrant, vector<Utilisateur*>& utilisateurs);
-void envoyerMessage(Utilisateur* utilisateur, sf::Packet paquetEntrant, vector<Utilisateur*>& utilisateurs);
-
 void envoyerATous(sf::Packet& paquetSortant, vector<Utilisateur*>& utilisateurs);
+void envoyerMessage(Utilisateur* utilisateur, sf::Packet paquetEntrant, vector<Utilisateur*>& utilisateurs);
+void changerNom(Utilisateur* utilisateur, sf::Packet paquetEntrant, vector<Utilisateur*>& utilisateurs);
 
 int main()
 {
@@ -98,6 +96,24 @@ int main()
     }
 }
 
+void envoyerATous(sf::Packet& paquetSortant, vector<Utilisateur*>& utilisateurs) {
+    for (int i = 0; i < utilisateurs.size(); i++) {
+        utilisateurs[i]->getSocket().send(paquetSortant);
+    }
+    paquetSortant.clear();
+}
+
+void envoyerMessage(Utilisateur* utilisateur, sf::Packet paquetEntrant, vector<Utilisateur*>& utilisateurs)
+{
+    string message;
+    sf::Packet paquetSortant;
+
+    paquetEntrant >> message;
+
+    paquetSortant << "MESSAGE" << utilisateur->getNom() << message;
+    envoyerATous(paquetSortant, utilisateurs);
+}
+
 void changerNom(Utilisateur* utilisateur, sf::Packet paquetEntrant, vector<Utilisateur*>& utilisateurs)
 {
     string ancienNom, nouveauNom;
@@ -118,23 +134,5 @@ void changerNom(Utilisateur* utilisateur, sf::Packet paquetEntrant, vector<Utili
     utilisateur->setNom(nouveauNom);
 
     paquetSortant << "USER_CHANGE_NAME" << ancienNom << nouveauNom;
-    envoyerATous(paquetSortant, utilisateurs);
-}
-
-void envoyerATous(sf::Packet& paquetSortant, vector<Utilisateur*>& utilisateurs) {
-    for (int i = 0; i < utilisateurs.size(); i++) {
-        utilisateurs[i]->getSocket().send(paquetSortant);
-    }
-    paquetSortant.clear();
-}
-
-void envoyerMessage(Utilisateur* utilisateur, sf::Packet paquetEntrant, vector<Utilisateur*>& utilisateurs)
-{
-    string message;
-    sf::Packet paquetSortant;
-
-    paquetEntrant >> message;
-
-    paquetSortant << "MESSAGE" << utilisateur->getNom() << message;
     envoyerATous(paquetSortant, utilisateurs);
 }
