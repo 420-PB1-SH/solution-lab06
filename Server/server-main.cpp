@@ -14,136 +14,138 @@ void envoyerATous(sf::Packet& paquetSortant, vector<Utilisateur*>& utilisateurs)
 
 int main()
 {
-	sf::TcpListener listener;
-	sf::SocketSelector selecteur;
-	unsigned short port = 54000;
+    sf::TcpListener listener;
+    sf::SocketSelector selecteur;
+    unsigned short port = 54000;
 
-	vector<Utilisateur*> utilisateurs;
-	Utilisateur* nouvelUtilisateur;
+    vector<Utilisateur*> utilisateurs;
+    Utilisateur* nouvelUtilisateur;
 
-	sf::Packet paquetEntrant, paquetSortant;
-	string action;
+    sf::Packet paquetEntrant, paquetSortant;
+    string action;
 
-	int idAnonyme = 1;
+    int idAnonyme = 1;
 
-	if (listener.listen(port) != sf::Socket::Done)
-	{
-		cout << "Erreur lors de l'‚coute sur le port " << port << endl;
-		return 1;
-	}
-	selecteur.add(listener);
+    setlocale(LC_ALL, "");
 
-	cout << "Le serveur ‚coute sur le port " << port << "." << endl;
+    if (listener.listen(port) != sf::Socket::Done)
+    {
+        cout << "Erreur lors de l'écoute sur le port " << port << endl;
+        return 1;
+    }
+    selecteur.add(listener);
 
-	while (true) {
-		selecteur.wait();
+    cout << "Le serveur écoute sur le port " << port << "." << endl;
 
-		if (selecteur.isReady(listener)) {
-			nouvelUtilisateur = new Utilisateur("Anonyme" + to_string(idAnonyme));
-			idAnonyme++;
+    while (true) {
+        selecteur.wait();
 
-			listener.accept(nouvelUtilisateur->getSocket());
+        if (selecteur.isReady(listener)) {
+            nouvelUtilisateur = new Utilisateur("Anonyme" + to_string(idAnonyme));
+            idAnonyme++;
 
-			cout << nouvelUtilisateur->getNom() << " ("
-				<< nouvelUtilisateur->getSocket().getRemoteAddress()
-				<< ":"
-				<< nouvelUtilisateur->getSocket().getRemotePort()
-				<< ") s'est connect‚." << endl;
+            listener.accept(nouvelUtilisateur->getSocket());
 
-			paquetSortant << "YOUR_NAME" << nouvelUtilisateur->getNom();
-			nouvelUtilisateur->getSocket().send(paquetSortant);
-			paquetSortant.clear();
+            cout << nouvelUtilisateur->getNom() << " ("
+                << nouvelUtilisateur->getSocket().getRemoteAddress()
+                << ":"
+                << nouvelUtilisateur->getSocket().getRemotePort()
+                << ") s'est connecté." << endl;
 
-			paquetSortant << "USER_ENTER" << nouvelUtilisateur->getNom();
-			envoyerATous(paquetSortant, utilisateurs);
+            paquetSortant << "YOUR_NAME" << nouvelUtilisateur->getNom();
+            nouvelUtilisateur->getSocket().send(paquetSortant);
+            paquetSortant.clear();
 
-			selecteur.add(nouvelUtilisateur->getSocket());
-			utilisateurs.push_back(nouvelUtilisateur);
+            paquetSortant << "USER_ENTER" << nouvelUtilisateur->getNom();
+            envoyerATous(paquetSortant, utilisateurs);
 
-		}
+            selecteur.add(nouvelUtilisateur->getSocket());
+            utilisateurs.push_back(nouvelUtilisateur);
 
-		for (int i = 0; i < utilisateurs.size(); i++) {
-			if (selecteur.isReady(utilisateurs[i]->getSocket())) {
-				if (utilisateurs[i]->getSocket().receive(paquetEntrant) == sf::Socket::Disconnected) {
-					cout << utilisateurs[i]->getNom() << " s'est d‚connect‚." << endl;
-					
-					paquetSortant << "USER_LEAVE" << utilisateurs[i]->getNom();
-					envoyerATous(paquetSortant, utilisateurs);
+        }
 
-					selecteur.remove(utilisateurs[i]->getSocket());
-					delete utilisateurs[i];
-					utilisateurs[i] = nullptr;
-					utilisateurs.erase(utilisateurs.begin() + i);
-				}
-				else {
-					paquetEntrant >> action;
+        for (int i = 0; i < utilisateurs.size(); i++) {
+            if (selecteur.isReady(utilisateurs[i]->getSocket())) {
+                if (utilisateurs[i]->getSocket().receive(paquetEntrant) == sf::Socket::Disconnected) {
+                    cout << utilisateurs[i]->getNom() << " s'est déconnecté." << endl;
+                    
+                    paquetSortant << "USER_LEAVE" << utilisateurs[i]->getNom();
+                    envoyerATous(paquetSortant, utilisateurs);
 
-					cout << "Action re‡ue de "
-						<< utilisateurs[i]->getSocket().getRemoteAddress()
-						<< ":"
-						<< utilisateurs[i]->getSocket().getRemotePort()
-						<< " : " << action
-						<< endl;
+                    selecteur.remove(utilisateurs[i]->getSocket());
+                    delete utilisateurs[i];
+                    utilisateurs[i] = nullptr;
+                    utilisateurs.erase(utilisateurs.begin() + i);
+                }
+                else {
+                    paquetEntrant >> action;
 
-					if (action == "CHANGE_NAME") {
-						changerNom(utilisateurs[i], paquetEntrant, utilisateurs);
-					}
-					else if (action == "SEND_MESSAGE") {
-						envoyerMessage(utilisateurs[i], paquetEntrant, utilisateurs);
-					}
-					else {
-						actionInvalide(utilisateurs[i]->getSocket());
-					}
-				}
-			}
-		}
-	}
+                    cout << "Action reçue de "
+                        << utilisateurs[i]->getSocket().getRemoteAddress()
+                        << ":"
+                        << utilisateurs[i]->getSocket().getRemotePort()
+                        << " : " << action
+                        << endl;
+
+                    if (action == "CHANGE_NAME") {
+                        changerNom(utilisateurs[i], paquetEntrant, utilisateurs);
+                    }
+                    else if (action == "SEND_MESSAGE") {
+                        envoyerMessage(utilisateurs[i], paquetEntrant, utilisateurs);
+                    }
+                    else {
+                        actionInvalide(utilisateurs[i]->getSocket());
+                    }
+                }
+            }
+        }
+    }
 }
 
 void actionInvalide(sf::TcpSocket& socket)
 {
-	sf::Packet paquetSortant;
-	paquetSortant << "INVALID_ACTION";
-	socket.send(paquetSortant);
+    sf::Packet paquetSortant;
+    paquetSortant << "INVALID_ACTION";
+    socket.send(paquetSortant);
 }
 
 void changerNom(Utilisateur* utilisateur, sf::Packet paquetEntrant, vector<Utilisateur*>& utilisateurs)
 {
-	string ancienNom, nouveauNom;
-	sf::Packet paquetSortant;
+    string ancienNom, nouveauNom;
+    sf::Packet paquetSortant;
 
-	paquetEntrant >> nouveauNom;
+    paquetEntrant >> nouveauNom;
 
-	for (int i = 0; i < utilisateurs.size(); i++) {
-		if (utilisateurs[i]->getNom() == nouveauNom) {
-			sf::Packet paquetSortant;
-			paquetSortant << "NAME_TAKEN";
-			utilisateur->getSocket().send(paquetSortant);
-			return;
-		}
-	}
+    for (int i = 0; i < utilisateurs.size(); i++) {
+        if (utilisateurs[i]->getNom() == nouveauNom) {
+            sf::Packet paquetSortant;
+            paquetSortant << "NAME_TAKEN";
+            utilisateur->getSocket().send(paquetSortant);
+            return;
+        }
+    }
 
-	ancienNom = utilisateur->getNom();
-	utilisateur->setNom(nouveauNom);
+    ancienNom = utilisateur->getNom();
+    utilisateur->setNom(nouveauNom);
 
-	paquetSortant << "USER_CHANGE_NAME" << ancienNom << nouveauNom;
-	envoyerATous(paquetSortant, utilisateurs);
+    paquetSortant << "USER_CHANGE_NAME" << ancienNom << nouveauNom;
+    envoyerATous(paquetSortant, utilisateurs);
 }
 
 void envoyerATous(sf::Packet& paquetSortant, vector<Utilisateur*>& utilisateurs) {
-	for (int i = 0; i < utilisateurs.size(); i++) {
-		utilisateurs[i]->getSocket().send(paquetSortant);
-	}
-	paquetSortant.clear();
+    for (int i = 0; i < utilisateurs.size(); i++) {
+        utilisateurs[i]->getSocket().send(paquetSortant);
+    }
+    paquetSortant.clear();
 }
 
 void envoyerMessage(Utilisateur* utilisateur, sf::Packet paquetEntrant, vector<Utilisateur*>& utilisateurs)
 {
-	string message;
-	sf::Packet paquetSortant;
+    string message;
+    sf::Packet paquetSortant;
 
-	paquetEntrant >> message;
+    paquetEntrant >> message;
 
-	paquetSortant << "MESSAGE" << utilisateur->getNom() << message;
-	envoyerATous(paquetSortant, utilisateurs);
+    paquetSortant << "MESSAGE" << utilisateur->getNom() << message;
+    envoyerATous(paquetSortant, utilisateurs);
 }

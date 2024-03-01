@@ -6,88 +6,90 @@ using namespace std;
 
 int main()
 {
-	sf::TcpSocket socket;
-	sf::SocketSelector selecteur;
-	sf::IpAddress adresseServeur = "127.0.0.1";
-	unsigned short portServeur = 54000;
-	sf::Packet paquetEntrant, paquetSortant;
+    sf::TcpSocket socket;
+    sf::SocketSelector selecteur;
+    sf::IpAddress adresseServeur = "127.0.0.1";
+    unsigned short portServeur = 54000;
+    sf::Packet paquetEntrant, paquetSortant;
 
-	string code, nomUtilisateur, ancienNom, nouveauNom, nomExpediteur, message;
-	char actionClavier;
+    string code, nomUtilisateur, ancienNom, nouveauNom, nomExpediteur, message;
+    char actionClavier;
 
-	cout << "SUPER CHAT" << endl;
-	cout << "================" << endl << endl;
+    setlocale(LC_ALL, "");
 
-	if (socket.connect(adresseServeur, portServeur) != sf::Socket::Done)
-	{
-		cout << "Impossible de se connecter au serveur " << adresseServeur << " sur le port " << portServeur << "." << endl;
-		return 1;
-	}
+    cout << "SUPER CHAT" << endl;
+    cout << "================" << endl << endl;
 
-	selecteur.add(socket);
+    if (socket.connect(adresseServeur, portServeur) != sf::Socket::Done)
+    {
+        cout << "Impossible de se connecter au serveur " << adresseServeur << " sur le port " << portServeur << "." << endl;
+        return 1;
+    }
 
-	cout << "Connect‚ au serveur " << adresseServeur << " sur le port " << portServeur << "." << endl << endl;
+    selecteur.add(socket);
 
-	cout << "Commandes disponibles : " << endl
-		<< "M - Envoyer un message" << endl
-		<< "N - Changer de nom d'utilisateur" << endl << endl;
+    cout << "Connecté au serveur " << adresseServeur << " sur le port " << portServeur << "." << endl << endl;
 
-	while (true) {
-		if (selecteur.wait(sf::milliseconds(10))) {
-			socket.receive(paquetEntrant);
-			paquetEntrant >> code;
+    cout << "Commandes disponibles : " << endl
+        << "M - Envoyer un message" << endl
+        << "N - Changer de nom d'utilisateur" << endl << endl;
 
-			if (code == "USER_ENTER") {
-				paquetEntrant >> nomUtilisateur;
-				cout << nomUtilisateur << " a joint le clavardage." << endl;
-			}
-			else if (code == "USER_LEAVE") {
-				paquetEntrant >> nomUtilisateur;
-				cout << nomUtilisateur << " a quitt‚ le clavardage." << endl;
-			}
-			else if (code == "USER_CHANGE_NAME") {
-				paquetEntrant >> ancienNom >> nouveauNom;
-				cout << ancienNom << " a chang‚ son nom pour " << nouveauNom << "." << endl;
-			}
-			else if (code == "MESSAGE") {
-				paquetEntrant >> nomExpediteur >> message;
-				cout << "[" << nomExpediteur << "] " << message << endl;
-			}
-			else if (code == "YOUR_NAME") {
-				paquetEntrant >> nomUtilisateur;
-				cout << "Votre nom d'utilisateur est " << nomUtilisateur << "." << endl;
-			}
-			else if (code == "NAME_TAKEN") {
-				cout << "Ce nom d'utilisateur est d‚j… pris." << endl;
-			}
-			else if (code == "INVALID_ACTION") {
-				cout << "Action invalide." << endl;
-			}
-		}
+    while (true) {
+        if (selecteur.wait(sf::milliseconds(10))) {
+            socket.receive(paquetEntrant);
+            paquetEntrant >> code;
 
-		if (_kbhit()) {
-			switch (tolower(_getch())) {
-			case 'm':
-				cout << "Entrez votre message : ";
-				getline(cin, message);
+            if (code == "USER_ENTER") {
+                paquetEntrant >> nomUtilisateur;
+                cout << nomUtilisateur << " a joint le clavardage." << endl;
+            }
+            else if (code == "USER_LEAVE") {
+                paquetEntrant >> nomUtilisateur;
+                cout << nomUtilisateur << " a quitté le clavardage." << endl;
+            }
+            else if (code == "USER_CHANGE_NAME") {
+                paquetEntrant >> ancienNom >> nouveauNom;
+                cout << ancienNom << " a changé son nom pour " << nouveauNom << "." << endl;
+            }
+            else if (code == "MESSAGE") {
+                paquetEntrant >> nomExpediteur >> message;
+                cout << "[" << nomExpediteur << "] " << message << endl;
+            }
+            else if (code == "YOUR_NAME") {
+                paquetEntrant >> nomUtilisateur;
+                cout << "Votre nom d'utilisateur est " << nomUtilisateur << "." << endl;
+            }
+            else if (code == "NAME_TAKEN") {
+                cout << "Ce nom d'utilisateur est déjà pris." << endl;
+            }
+            else if (code == "INVALID_ACTION") {
+                cout << "Action invalide." << endl;
+            }
+        }
 
-				paquetSortant << "SEND_MESSAGE" << message;
-				socket.send(paquetSortant);
+        if (_kbhit()) {
+            switch (tolower(_getch())) {
+            case 'm':
+                cout << "Entrez votre message : ";
+                getline(cin, message);
 
-				break;
-			case 'n':
-				cout << "Entrez votre nom d'utilisateur : ";
-				getline(cin, nomUtilisateur);
+                paquetSortant << "SEND_MESSAGE" << message;
+                socket.send(paquetSortant);
 
-				paquetSortant << "CHANGE_NAME" << nomUtilisateur;
-				socket.send(paquetSortant);
+                break;
+            case 'n':
+                cout << "Entrez votre nom d'utilisateur : ";
+                getline(cin, nomUtilisateur);
 
-				break;
-			}
-		}
+                paquetSortant << "CHANGE_NAME" << nomUtilisateur;
+                socket.send(paquetSortant);
 
-		paquetSortant.clear();
-	}
+                break;
+            }
+        }
 
-	system("pause");
+        paquetSortant.clear();
+    }
+
+    system("pause");
 }

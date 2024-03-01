@@ -5,13 +5,13 @@
 
 class Utilisateur {
 private:
-	std::string _nom;
-	sf::TcpSocket _socket;
+    std::string _nom;
+    sf::TcpSocket _socket;
 public:
-	Utilisateur(std::string nom);
+    Utilisateur(std::string nom);
 
-	void setNom(const std::string& nom);
-	const std::string& getNom() const;
+    void setNom(const std::string& nom);
+    const std::string& getNom() const;
 
-	sf::TcpSocket& getSocket();
+    sf::TcpSocket& getSocket();
 };
