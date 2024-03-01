@@ -61,7 +61,6 @@ int main()
 
             selecteur.add(nouvelUtilisateur->getSocket());
             utilisateurs.push_back(nouvelUtilisateur);
-
         }
 
         for (int i = 0; i < utilisateurs.size(); i++) {
