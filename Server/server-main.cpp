@@ -22,7 +22,7 @@ int main()
     Utilisateur* nouvelUtilisateur;
 
     sf::Packet paquetEntrant, paquetSortant;
-    string action;
+    string code;
 
     int idAnonyme = 1;
 
@@ -78,19 +78,19 @@ int main()
                     utilisateurs.erase(utilisateurs.begin() + i);
                 }
                 else {
-                    paquetEntrant >> action;
+                    paquetEntrant >> code;
 
                     cout << "Action reçue de "
                         << utilisateurs[i]->getSocket().getRemoteAddress()
                         << ":"
                         << utilisateurs[i]->getSocket().getRemotePort()
-                        << " : " << action
+                        << " : " << code
                         << endl;
 
-                    if (action == "CHANGE_NAME") {
+                    if (code == "CHANGE_NAME") {
                         changerNom(utilisateurs[i], paquetEntrant, utilisateurs);
                     }
-                    else if (action == "SEND_MESSAGE") {
+                    else if (code == "SEND_MESSAGE") {
                         envoyerMessage(utilisateurs[i], paquetEntrant, utilisateurs);
                     }
                     else {
