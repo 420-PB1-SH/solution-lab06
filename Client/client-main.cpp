@@ -39,19 +39,7 @@ int main()
             socket.receive(paquetEntrant);
             paquetEntrant >> code;
 
-            if (code == "USER_ENTER") {
-                paquetEntrant >> nomUtilisateur;
-                cout << nomUtilisateur << " a joint le clavardage." << endl;
-            }
-            else if (code == "USER_LEAVE") {
-                paquetEntrant >> nomUtilisateur;
-                cout << nomUtilisateur << " a quitté le clavardage." << endl;
-            }
-            else if (code == "USER_CHANGE_NAME") {
-                paquetEntrant >> ancienNom >> nouveauNom;
-                cout << ancienNom << " a changé son nom pour " << nouveauNom << "." << endl;
-            }
-            else if (code == "MESSAGE") {
+            if (code == "MESSAGE") {
                 paquetEntrant >> nomExpediteur >> message;
                 cout << "[" << nomExpediteur << "] " << message << endl;
             }
@@ -60,10 +48,20 @@ int main()
                 cout << "Votre nom d'utilisateur est " << nomUtilisateur << "." << endl;
             }
             else if (code == "NAME_TAKEN") {
-                cout << "Ce nom d'utilisateur est déjà pris." << endl;
+                paquetEntrant >> nouveauNom;
+                cout << "Le nom " << nouveauNom << " est déjà pris." << endl;
             }
-            else if (code == "INVALID_ACTION") {
-                cout << "Action invalide." << endl;
+            else if (code == "USER_CHANGE_NAME") {
+                paquetEntrant >> ancienNom >> nouveauNom;
+                cout << ancienNom << " a changé son nom pour " << nouveauNom << "." << endl;
+            }
+            else if (code == "USER_ENTER") {
+                paquetEntrant >> nomUtilisateur;
+                cout << nomUtilisateur << " a joint le chat." << endl;
+            }
+            else if (code == "USER_LEAVE") {
+                paquetEntrant >> nomUtilisateur;
+                cout << nomUtilisateur << " a quitté le chat." << endl;
             }
         }
 

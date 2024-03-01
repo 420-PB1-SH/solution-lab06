@@ -86,26 +86,16 @@ int main()
                         << " : " << code
                         << endl;
 
-                    if (code == "CHANGE_NAME") {
-                        changerNom(utilisateurs[i], paquetEntrant, utilisateurs);
-                    }
-                    else if (code == "SEND_MESSAGE") {
+                    if (code == "SEND_MESSAGE") {
                         envoyerMessage(utilisateurs[i], paquetEntrant, utilisateurs);
                     }
-                    else {
-                        actionInvalide(utilisateurs[i]->getSocket());
+                    else if (code == "CHANGE_NAME") {
+                        changerNom(utilisateurs[i], paquetEntrant, utilisateurs);
                     }
                 }
             }
         }
     }
-}
-
-void actionInvalide(sf::TcpSocket& socket)
-{
-    sf::Packet paquetSortant;
-    paquetSortant << "INVALID_ACTION";
-    socket.send(paquetSortant);
 }
 
 void changerNom(Utilisateur* utilisateur, sf::Packet paquetEntrant, vector<Utilisateur*>& utilisateurs)
@@ -118,7 +108,7 @@ void changerNom(Utilisateur* utilisateur, sf::Packet paquetEntrant, vector<Utili
     for (int i = 0; i < utilisateurs.size(); i++) {
         if (utilisateurs[i]->getNom() == nouveauNom) {
             sf::Packet paquetSortant;
-            paquetSortant << "NAME_TAKEN";
+            paquetSortant << "NAME_TAKEN" << nouveauNom;
             utilisateur->getSocket().send(paquetSortant);
             return;
         }
